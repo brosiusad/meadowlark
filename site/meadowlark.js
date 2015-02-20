@@ -11,16 +11,26 @@ app.set('port', process.env.PORT || 3000);
 
 var fortune = require('./lib/fortune.js');
 
+
 // Routes & Middleware
 app.use(express.static(__dirname + '/public'));
+
+// test handling
+app.use(function(req, res, next) {
+    res.locals.showTests = app.get('env') !== 'production' && req.query.test === '1';
+    next();
+})
+
 
 app.get('/', function(req, res) {
     res.render('home');
 });
 
 app.get('/about', function(req, res) {
-    var randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
-    res.render('about', {fortune: randomFortune});
+    res.render('about', {
+        fortune: fortune.getFortune(),
+        pageTestScript: '/qa/tests-about.js'
+    });
 });
 
 // custom 404 page
